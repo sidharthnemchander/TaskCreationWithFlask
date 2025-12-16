@@ -23,10 +23,19 @@ def tasks():
     tasks_html = ""
     for t in tasks_list:
         tasks_html += f"<li>{t}</li>"
-         
+
     return """
             <h2> NOT BAD FOR YOUR FIRST TIME </h2>
             
+            <form method = "POST">
+                <input type = "text" name = "task" placeholder = "Enter your task"/>
+                <button type = "submit"> Add task </button>
+            </form>
+            <ul>
+                {tasks_html}
+            </ul>
+
+            <a href = '/'> back </a>
             """
 
 if __name__ == "__main__":
