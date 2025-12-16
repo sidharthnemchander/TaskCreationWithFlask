@@ -1,33 +1,42 @@
-from flask import Flask, request, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-tasks_list = []
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tasks.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-@app.route("/")
-def home():
-    return """
-            <h1> this is the heading </h1>
-            <p> how are you doing dude </p>
-            <a href= '/tasks'> click this to go to tasks page <a>
-            """
+db = SQLAlchemy(app)
 
-@app.route("/tasks", methods = ["GET", "POST"])
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(200), nullable=False)
+
+@app.route("/tasks", methods=["GET", "POST"])
 def tasks():
     if request.method == "POST":
-        task = request.form.get("task")
+        task_content = request.form.get("task")
+        if task_content:
+            new_task = Task(content=task_content) #type:ignore pylance error for no parameter
+            db.session.add(new_task)
+            db.session.commit()
 
-        if task:
-            tasks_list.append(task)
-    
-    return render_template("tasks.html", tasks=tasks_list)
+        return redirect(url_for("tasks"))
 
+    all_tasks = Task.query.all()
+    return render_template("tasks.html", tasks=all_tasks)
 
-@app.route("/delete/<int:index>")
-def delete_task(index):
-    if 0<=index < len(tasks_list):
-        tasks_list.pop(index)
+@app.route("/delete/<int:id>")
+def delete_task(id):
+    task = Task.query.get(id)
+    if task:
+        db.session.delete(task)
+        db.session.commit()
+
     return redirect(url_for("tasks"))
 
 if __name__ == "__main__":
-    app.run(debug = True)
+    with app.app_context():
+        db.create_all()
+
+    app.run(debug=True)
