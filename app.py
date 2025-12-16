@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 
 app = Flask(__name__)
 
@@ -20,24 +20,7 @@ def tasks():
         if task:
             tasks_list.append(task)
     
-    tasks_html = ""
-    for t in tasks_list:
-        tasks_html += f"<li>{t}</li>"
-
-    return f"""
-            <h2> NOT BAD FOR YOUR FIRST TIME </h2>
-            
-            <form method = "POST">
-                <input type = "text" name = "task" placeholder = "Enter your task"/>
-                <button type = "submit"> Add task </button>
-            </form>
-
-            <ul>
-                {tasks_html}
-            </ul>
-
-            <a href = '/'> back </a>
-            """
+    return render_template("tasks.html", tasks=tasks_list)
 
 if __name__ == "__main__":
     app.run(debug = True)
