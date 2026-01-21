@@ -5,5 +5,13 @@
   </head>
   <body>
     <h1>My Tasks</h1>
+
+    <ul>
+      {% for task in tasks %}
+      <li>{{ task.content }}</li>
+      {% empty %}
+      <li>No tasks yet</li>
+      {% endfor %}
+    </ul>
   </body>
 </html>
